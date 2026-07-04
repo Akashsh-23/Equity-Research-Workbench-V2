@@ -35,14 +35,12 @@ with st.spinner("Calculating health score..."):
         cats = score["category_scores"]
         sample_info = score["sample_info"]
 
-        # Color based on score
         if   overall >= 80: color = "#16a34a"
         elif overall >= 65: color = "#2563eb"
         elif overall >= 50: color = "#d97706"
         elif overall >= 35: color = "#ea580c"
         else:               color = "#dc2626"
 
-        # Big score display
         col1, col2 = st.columns([1, 2])
         with col1:
             st.markdown(f"""
@@ -87,7 +85,6 @@ with st.spinner("Calculating health score..."):
 
         st.divider()
 
-        # Methodology — this is what impresses interviewers
         st.subheader("How the score is calculated")
         st.markdown(f"""
         | Category | Weight | What it measures |
@@ -111,7 +108,6 @@ with st.spinner("Calculating health score..."):
 
         st.divider()
 
-        # Excel export — needs the raw ratios dict saved by the Financials page
         if "ratios" in st.session_state:
             excel_buffer = build_report(
                 ticker,

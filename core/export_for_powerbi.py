@@ -1,14 +1,4 @@
-"""
-Exports the snapshots table (plus a computed percentile score per company)
-to a CSV that Power BI can read directly.
-
-Run after seeding/searching companies:
-    python core/export_for_powerbi.py
-
-Produces: data/powerbi_export.csv
-Re-run any time to refresh the export with your latest SQLite data —
-Power BI's "Refresh" button will pick up the new file.
-"""
+"""Export the latest company snapshots and scores for Power BI."""
 
 import sys
 sys.path.append(".")

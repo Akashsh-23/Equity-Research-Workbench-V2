@@ -20,11 +20,9 @@ if ticker_input:
             info = get_company_info(ticker_input.upper())
             history = get_stock_history(ticker_input.upper(), period="1y")
 
-            # Store in session so other pages can use it
             st.session_state["ticker"] = ticker_input.upper()
             st.session_state["info"]   = info
 
-            # Company header
             st.subheader(info["name"])
             col1, col2, col3 = st.columns(3)
             col1.metric("Sector",   info["sector"])
@@ -33,7 +31,6 @@ if ticker_input:
 
             st.divider()
 
-            # Price metrics
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("Current Price", f"₹{info['current_price']:,.2f}")
             col2.metric("Market Cap",    f"₹{info['market_cap']/1e12:.2f}T")
@@ -42,7 +39,6 @@ if ticker_input:
 
             st.divider()
 
-            # Price chart
             st.subheader("Price History — 1 Year")
             fig = go.Figure()
             fig.add_trace(go.Scatter(
@@ -61,7 +57,6 @@ if ticker_input:
             )
             st.plotly_chart(fig, use_container_width=True)
 
-            # Business description
             st.subheader("About the Company")
             st.write(info["description"])
 

@@ -3,7 +3,7 @@ import sys
 sys.path.append(".")
 from core.database import init_db
 
-init_db()  # creates data/workbench.db and tables if they don't exist yet
+init_db()
 
 st.set_page_config(
     page_title="Equity Research Workbench",

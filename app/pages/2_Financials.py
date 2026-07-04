@@ -10,7 +10,6 @@ from core.database import save_snapshot
 st.set_page_config(page_title="Financials", page_icon="📈", layout="wide")
 st.title("📈 Financial Statements & Ratios")
 
-# Check if user has searched a company
 if "ticker" not in st.session_state:
     st.warning("Please search for a company on the Search page first.")
     st.stop()
@@ -26,13 +25,10 @@ with st.spinner("Loading financial statements..."):
         cashflow   = financials["cash_flow"]
         ratios     = calculate_all_ratios(income, balance, cashflow)
 
-        # Store ratios for health score page
         st.session_state["ratios"] = ratios
 
-        # Persist this snapshot to SQLite so we can trend/compare it later
         save_snapshot(ticker, st.session_state["info"], ratios)
 
-        # --- Tabs for the 3 statements ---
         tab1, tab2, tab3, tab4 = st.tabs([
             "Income Statement", "Balance Sheet", "Cash Flow", "Ratio Dashboard"
         ])
@@ -86,7 +82,6 @@ with st.spinner("Loading financial statements..."):
                 st.markdown("**Cash Flow**")
                 st.metric("Free Cash Flow",   f"₹{ratios['Free Cash Flow (Cr)']:,} Cr")
 
-            # Revenue trend chart
             st.divider()
             st.subheader("Revenue Trend")
             try:

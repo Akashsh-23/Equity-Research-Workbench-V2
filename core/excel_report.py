@@ -1,8 +1,4 @@
-"""
-Generates a formatted Excel report for one company — ratios, percentile
-health score breakdown, and the peer comparison group it was scored
-against. Used by the "Download Report" button on the Health Score page.
-"""
+"""Generate formatted Excel reports for company health scores."""
 
 import io
 from datetime import datetime
@@ -33,7 +29,6 @@ def build_report(ticker, info, ratios, score):
     """
     wb = Workbook()
 
-    # ---------- Sheet 1: Overview ----------
     ws = wb.active
     ws.title = "Overview"
     ws["A1"] = info.get("name", ticker)
@@ -72,7 +67,6 @@ def build_report(ticker, info, ratios, score):
     ws.column_dimensions["B"].width = 28
     ws.column_dimensions["C"].width = 35
 
-    # ---------- Sheet 2: Ratios ----------
     ws2 = wb.create_sheet("Ratios")
     ws2.cell(row=1, column=1, value="Ratio").font = HEADER_FONT
     ws2.cell(row=1, column=2, value="Value").font = HEADER_FONT
@@ -85,7 +79,6 @@ def build_report(ticker, info, ratios, score):
     ws2.column_dimensions["A"].width = 28
     ws2.column_dimensions["B"].width = 16
 
-    # ---------- Sheet 3: Peer Comparison ----------
     ws3 = wb.create_sheet("Peer Comparison")
     from core.database import get_all_snapshots
     all_snaps = get_all_snapshots()
@@ -113,7 +106,6 @@ def build_report(ticker, info, ratios, score):
     for col in range(1, len(headers) + 1):
         ws3.column_dimensions[get_column_letter(col)].width = 16
 
-    # ---------- Save to memory ----------
     buffer = io.BytesIO()
     wb.save(buffer)
     buffer.seek(0)

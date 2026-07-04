@@ -10,11 +10,10 @@ if "ticker" not in st.session_state:
 
 info   = st.session_state["info"]
 ticker = st.session_state["ticker"]
-name   = info["name"].split()[0]   # Use first word e.g. "Reliance"
+name   = info["name"].split()[0]
 
 st.subheader(f"Recent news — {info['name']}")
 
-# Use GNews free API (no key needed for basic use)
 url = f"https://gnews.io/api/v4/search?q={name}+stock&lang=en&country=in&max=10&apikey=demo"
 
 try:
@@ -23,7 +22,6 @@ try:
     articles = data.get("articles", [])
 
     if not articles:
-        # Fallback — show a note
         st.info(
             "Live news requires a free GNews API key. "
             "Get one at gnews.io and add it to the URL in 4_News.py. "

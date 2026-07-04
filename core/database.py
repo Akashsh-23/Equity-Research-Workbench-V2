@@ -1,15 +1,4 @@
-"""
-SQLite persistence layer for the Equity Research Workbench.
-
-Every time a user searches a ticker, we save a "snapshot" — the company
-info and ratios at that point in time. This is the only table the app
-needs: health scores are percentile-based and computed live from these
-snapshots every time a page loads, so there's nothing else to store.
-
-Why SQLite: zero install, single file (data/workbench.db), perfect for a
-portfolio project. Swap to Postgres later if you ever need concurrent
-writes.
-"""
+"""SQLite persistence layer for company ratio snapshots."""
 
 import sqlite3
 import os
@@ -21,7 +10,7 @@ DB_PATH = "data/workbench.db"
 def get_connection():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # lets us access columns by name
+    conn.row_factory = sqlite3.Row
     return conn
 
 
@@ -61,12 +50,7 @@ def init_db():
 
 
 def save_snapshot(ticker, info, ratios):
-    """
-    Insert or refresh today's snapshot for this ticker.
-    UNIQUE(ticker, snapshot_date) means searching the same stock twice in
-    one day updates the same row instead of creating duplicates; searching
-    it again tomorrow creates a new row (building history over time).
-    """
+    """Insert or refresh today's snapshot for this ticker."""
     conn = get_connection()
     cur = conn.cursor()
     today = datetime.now().strftime("%Y-%m-%d")
@@ -133,7 +117,7 @@ def get_latest_snapshot_per_ticker():
 
 
 def get_snapshot_history(ticker):
-    """All historical snapshots for one ticker, oldest first — for a future trend chart."""
+    """All historical snapshots for one ticker, oldest first."""
     conn = get_connection()
     rows = conn.execute(
         "SELECT * FROM snapshots WHERE ticker = ? ORDER BY snapshot_date ASC",

@@ -1,38 +1,17 @@
-"""
-Percentile-based Health Score — an alternative to the fixed-threshold
-scoring in health_score.py.
-
-Instead of hardcoded cutoffs ("ROE >= 20% is excellent"), this scores a
-company relative to every other company in your SQLite history:
-"this company's ROE beats 73% of companies you've researched."
-
-Why this matters: fixed thresholds are sector-blind and arbitrary (why
-20% and not 18%?). Percentile scoring recalibrates automatically as you
-add more companies, and — when there's enough data — can compare within
-the same sector instead of the whole market, which is the fairer
-comparison (an IT company and an oil company don't have comparable ROE
-profiles for structural reasons, not performance reasons).
-
-Limitation (be upfront about this — it's a legitimate one): percentile
-ranks are only meaningful with a reasonable sample size. Comparing
-against 3 companies tells you almost nothing. We require a minimum
-sample before trusting a sector-level comparison, and fall back to the
-whole dataset otherwise.
-"""
+"""Percentile-based financial health scoring."""
 
 from core.database import get_all_snapshots
 
-MIN_SECTOR_SAMPLE = 5     # below this, fall back to whole-dataset comparison
-MIN_TOTAL_SAMPLE  = 8     # below this, percentile scoring isn't meaningful at all
+MIN_SECTOR_SAMPLE = 5
+MIN_TOTAL_SAMPLE  = 8
 
-# Metrics used per category, and whether higher is better (False = lower is better)
 METRIC_DIRECTIONS = {
     "net_margin":        True,
     "roe":               True,
     "roce":              True,
     "current_ratio":     True,
     "quick_ratio":       True,
-    "debt_to_equity":    False,   # lower debt is better
+    "debt_to_equity":    False,
     "interest_coverage": True,
     "revenue_growth":    True,
     "free_cash_flow":    True,
@@ -56,39 +35,23 @@ CATEGORY_WEIGHTS = {
 
 
 def _percentile_rank(value, values, higher_is_better=True):
-    """
-    What percentage of `values` does `value` beat?
-    Returns 0-100. Pure Python, no scipy dependency needed.
-    """
+    """Return a 0-100 percentile rank."""
     values = [v for v in values if v is not None]
     if not values:
-        return 50.0  # no comparison data — neutral score
+        return 50.0
 
     count_below = sum(1 for v in values if v < value)
     count_equal = sum(1 for v in values if v == value)
-    # standard percentile-rank formula, counting ties as half-credit
     rank = (count_below + 0.5 * count_equal) / len(values) * 100
 
     return rank if higher_is_better else (100 - rank)
 
 
 def calculate_percentile_score(ticker, snapshot_row):
-    """
-    Compute a percentile-based health score for one company.
-
-    Args:
-        ticker: the company's ticker, e.g. "TCS.NS"
-        snapshot_row: dict with that company's ratio values
-                      (same shape as a row from get_all_snapshots())
-
-    Returns:
-        dict — same shape as calculate_health_score() output, plus a
-        "sample_info" key describing what it was compared against.
-    """
+    """Compute a percentile-based health score for one company."""
     all_snapshots = get_all_snapshots()
     sector = snapshot_row.get("sector")
 
-    # Use sector peers if there are enough of them, else whole dataset
     sector_peers = [s for s in all_snapshots if s.get("sector") == sector] if sector else []
     use_sector = len(sector_peers) >= MIN_SECTOR_SAMPLE
     comparison_pool = sector_peers if use_sector else all_snapshots
